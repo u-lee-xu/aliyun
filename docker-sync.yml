@@ -1,0 +1,31 @@
+name: Sync Docker Image to ACR
+
+on:
+  workflow_dispatch: # 手动触发
+  schedule:
+    - cron: "0 0 * * *" # 每天凌晨执行一次
+
+jobs:
+  sync-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.ACR_USERNAME }}" --password-stdin
+
+      - name: Log in to Aliyun ACR
+        run: echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_REGISTRY }} -u "${{ secrets.ACR_USERNAME }}" --password-stdin
+
+      - name: Pull image from Docker Hub
+        run: docker pull ${{ secrets.SOURCE_IMAGE }}:${{ secrets.TAGS }}
+
+      - name: Tag image for Aliyun ACR
+        run: |
+          docker tag ${{ secrets.SOURCE_IMAGE }}:${{ secrets.TAGS }} \
+            ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/${{ secrets.ACR_REPO }}:${{ secrets.TAGS }}
+
+      - name: Push image to Aliyun ACR
+        run: docker push ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/${{ secrets.ACR_REPO }}:${{ secrets.TAGS }}
