@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.ACR_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.ALIYUN }}" | docker login -u "${{ secrets.ACR_USERNAME }}" --password-stdin
 
       - name: Log in to Aliyun ACR
         run: echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_REGISTRY }} -u "${{ secrets.ACR_USERNAME }}" --password-stdin
